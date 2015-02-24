@@ -28,15 +28,16 @@
 
 from grove_compass_lib import *
 from gopigo import *
+import smbus
 import turtle
 
-en_turtle=1		#Enable turtle graphics
+en_turtle=0		#Enable turtle graphics
 debug=0			#Disable debug mode
 
 if en_turtle:
 	turtle.Turtle()
 	
-c=compass()
+#c=compass()
 divider=4		
 
 set_speed(110)
@@ -48,11 +49,15 @@ while True:
 	try:
 		if cmd[0]=='f':		#If command is f, move forward by dist/4 encoder counts
 			dist=int(cmd[2]+cmd[3])/divider
-			speed=int(cmd[5]) * 10
+			speed=int(cmd[5])
+			print str(dist) + "/n"
+			print str(speed) + "/n"
 			enc_tgt(speed,1,dist)
 			fwd()
 			if en_turtle:
 				turtle.forward(dist*divider)
+		elif cmd[0]=='s':
+			stop()
 				
 		elif cmd[0]=='l':	#If command is l, rotate left
 			angle=int(cmd[2:])
@@ -60,12 +65,14 @@ while True:
 				print "Wrong angle"
 				continue
 				
-			c.update()
-			start=360-c.headingDegrees	# compass counts go from 360 -> 0 when turning left, so invert the count
+#			c.update()
+#			start=360-c.headingDegrees	# compass counts go from 360 -> 0 when turning left, so invert the count
+			#adding a temp start value
+			start = 360
 			target= (start+angle)%360	# If target >360 degrees, wrap it to 0
 			left_rot()
 			while True:
-				current=360-c.headingDegrees
+#				current=360-c.headingDegrees
 				if debug:
 					print start,target,current
 				if target-start>0:		# Stop when target reached (works when start and target <360
@@ -80,7 +87,7 @@ while True:
 						time.sleep(.15)
 						stop()
 						break;
-				c.update()
+#				c.update()
 				#time.sleep(.1)
 			if en_turtle:
 				turtle.left(angle)			
